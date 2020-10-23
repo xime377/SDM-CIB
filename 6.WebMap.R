@@ -8,12 +8,12 @@
 ####
 
 ###SET WDIR
-setwd("~/Bamboo-SDM/") #Guanabana
-#setwd("G:/My Drive/CIB/3. Resultados/") #Xime PC
+#setwd("~/Bamboo-SDM/") #Guanabana
+setwd("G:/My Drive/CIB/3. Resultados/") #Xime PC
 
 
-processing_directory <- "~/Bamboo-SDM/" #"G:/My Drive/CIB/3. Resultados/
-predictions_dir <- paste0(processing_directory, "/Results/predictions_wmean/")
+processing_directory <- "G:/My Drive/CIB/3. Resultados/Output" #"~/Bamboo-SDM/"
+predictions_dir <- paste0(processing_directory, "/Mapa_SDM_Oct20/")
 
 ###LOAD LIBRARIES
 library("sf")
@@ -42,6 +42,7 @@ load_data <- function(sp, directory) {
 ###Load all the predictions
 all_sps <- load_data("", paste0(predictions_dir, "/Species/"))
 all_genus <- load_data("", paste0(predictions_dir, "/Genus/"))
+names(all_genus)
 
 ###If loading only some rasters  
 #Aulonemia<- raster("./Output/Mapa_SDM_prel_Ago17/Bambu_1maps/Aulonemia_hirtula.tif")
@@ -53,11 +54,11 @@ all_genus <- load_data("", paste0(predictions_dir, "/Genus/"))
 summary(all_sps)
 summary(all_sps[[40]])
 
-summary(Guadua)
-summary(Aulonemia)
+#summary(Guadua)
+#summary(Aulonemia)
 
 ###Select the probability values higher than 10%
-all_sps[all_sps<=100 <- NA] # Select only values higher than 100 (10%)
+all_sps[all_sps<=100] <- NA # Select only values higher than 100 (10%)
 all_genus[all_genus<=100] <- NA 
 
 #Aulonemia[Aulonemia<=100] <- NA 
@@ -67,16 +68,17 @@ all_genus[all_genus<=100] <- NA
 
 
 ###LOAD POINTS
-P_bamboo<-st_read("./Data/Shapefiles/Bambu_filtered181020_genus.gpkg")
+P_bamboo<-st_read("./Scripts/Bamboo-SDM/Data/Shapefiles/Bambu_filtered181020_genus.gpkg")
 #P_bamboo<-st_read("./Data/Shapefiles/Bambu_filtered181020_genus.shp")
 
 ###LOAD MEMBRETE
-membrete <- readPNG("./Output/Mapa_SDM_prel_Nov19/membrete/test.png")
+membrete <- readPNG(paste0(predictions_dir, "/membrete.png"))
 
 
 ###PLOT MAP
-mapView(P_bamboo, legend=T, #add points
-        map.types=c("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap", "OpenTopoMap")) #add basemaps
+#View only bamboo records
+#mapView(P_bamboo, legend=T, #add points
+#        map.types=c("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap", "OpenTopoMap")) #add basemaps
 
 
 bambu_species <- P_bamboo %>% 
@@ -87,7 +89,7 @@ bambu_species <- P_bamboo %>%
   st_set_geometry(NULL)
 
 # Rescale values to 0-1
-my_map <- All[[1]] / 1000 
+my_map <- all_sps[[1]] / 1000 
 # Aggregate map for easier loading 
 my_map_agg <- aggregate(my_map, fact = 10)
 
@@ -155,7 +157,7 @@ leaflet::leaflet(data = bambu_species) %>%
                  opacity = 0.8) %>%
   leaflet.extras::addResetMapButton()  %>% 
   addScaleBar(position = "bottomright") %>% 
-  addLogo("./Output/Mapa_SDM_prel_Nov19/membrete/test.png", src = "local",
+  addLogo(paste0(predictions_dir, "/membrete.png"), src = "local",
           position = "bottomleft",
           offset.x = 5,
           offset.y = 5,
