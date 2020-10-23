@@ -6,27 +6,29 @@ Scripts for mapping the potential distribution of Peruvian bamboo species. This 
 Steps:
 ------
 
-##### For the satabase generation use the following scripts:
+##### For the database generation use the following scripts:
 
-1.
-2.
+1. BambuGBIF.R
+2. Data_explor.R
 
 
+If you already have a database with all your species/genus records proceed with:
 
-##### Modeling
+##### Species Distribution Modeling Part
 
-3.
-4.
-5.
+3. Clean_data.R
+4. Run_models_all_Spec_array.R
+5. Plot_results.R
 
-##### Web map
+##### Generate a Web map showing the results from the models
 
-6.
+6. WebMap.R
 
 
 
 ##### Additional Scripts:
 
+4. run_models_parallel.R 
 
 
 ** **
