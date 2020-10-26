@@ -72,13 +72,13 @@ P_bamboo<-st_read("./Scripts/Bamboo-SDM/Data/Shapefiles/Bambu_filtered261020_gen
 #P_bamboo<-st_read("./Data/Shapefiles/Bambu_filtered181020_genus.shp")
 
 ###LOAD MEMBRETE
-membrete <- readPNG(paste0(predictions_dir, "/membrete.png"))
+membrete <- paste0(predictions_dir, "/membrete.png")
 
 
 ###PLOT MAP
 #View only bamboo records
-#mapView(P_bamboo, legend=T, #add points
-#        map.types=c("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap", "OpenTopoMap")) #add basemaps
+mapView(P_bamboo, legend=T, #add points
+        map.types=c("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap", "OpenTopoMap")) #add basemaps
 
 
 bambu_species <- P_bamboo %>% 
@@ -89,14 +89,17 @@ bambu_species <- P_bamboo %>%
   st_set_geometry(NULL)
 
 # Rescale values to 0-1
-my_map <- all_sps / 1000 
+my_map <- all_sps[[1]] / 1000 
 # Aggregate map for easier loading 
 my_map_agg <- aggregate(my_map, fact = 10)
 
 # 
 bambu_species_df <- split(bambu_species, bambu_species$Species)
-basemap <- leaflet() %>% addTiles()
-
+basemap <- leaflet() %>% addTiles(group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "World Imagery") %>%
+  addProviderTiles(providers$Stamen.Terrain, group = "Terrain") 
+  
+  
 
 ### Create df so it can be visualized per species
 
@@ -118,33 +121,34 @@ names(bambu_species_df) %>%
                                              direction = 'auto'))
   })
 
-# Select species occurences on map (default Guadua sp.)
+
+# Select species occurences on map (By default G. angustifolia)
 basemap %>% 
-  addProviderTiles("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap") %>% 
+  #addProviderTiles("OpenStreetMap") %>% 
   addRasterImage(my_map_agg,
                  # colors = pal,
-                 # group = "Raster",
+                 group = "Raster",
                  opacity = 0.8) %>%
   leaflet.extras::addResetMapButton()  %>% 
   addScaleBar(position = "bottomright") %>% 
   addLogo(membrete, src = "local",
-          position = "bottomleft",
-          offset.x = 5,
-          offset.y = 5,
-          width = 380,
-          height = 160) %>%
+           position = "bottomleft",
+           offset.x = 5,
+           offset.y = 5,
+           width = 380,
+           height = 160) %>%
   addLayersControl(
-    overlayGroups = names(bambu_species_df),
-    options = layersControlOptions(collapsed = TRUE)
-  ) %>% 
-  hideGroup(stringr::str_remove(names(bambu_species_df), "Guadua sp."))
+    baseGroups = c("OpenStreetMap", "World Imagery", "Terrain"),
+    overlayGroups = c("Raster",names(bambu_species_df)),
+    options = layersControlOptions(collapsed = FALSE)) %>% 
+  hideGroup(stringr::str_remove(names(bambu_species_df), "Guadua angustifolia"))
 
 
 
 #################
 # Map all points and raster
 leaflet::leaflet(data = bambu_species) %>% 
-  addProviderTiles("Stamen.Terrain") %>% 
+  #addProviderTiles("OpenStreetMap") %>% 
   addCircleMarkers(
     radius = 10, # size of the dots
     fillOpacity = .7, # alpha of the dots
@@ -154,6 +158,10 @@ leaflet::leaflet(data = bambu_species) %>%
     clusterOptions = markerClusterOptions(),
     #popup = ~htmltools::htmlEscape(Species)) %>% 
     popup= popupTable(bambu_species[2:4]))%>% 
+  addRasterImage(my_map_agg, 
+                 # colors = pal, 
+                 group = "Raster",
+                 opacity = 0.8) %>%
   addRasterImage(my_map_agg, 
                  # colors = pal, 
                  group = "Raster",
