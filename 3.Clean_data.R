@@ -100,6 +100,7 @@ bambu_species_sf <- bambu_species_raw %>%
             Species = Latin, # Subset and rename columns 
             Latitude = Latitud,
             Longitude = Longitud,
+            Ref = Fuente,
             Source = Source_type) %>% 
   st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) # Convert into simple feature
 
@@ -120,7 +121,8 @@ table(bambu_species_sf$Species)
 
 bambu_species_empty <- bambu_species_sp[FALSE, ]
 
-#### Rarify point data so there is a single occurence for each cell
+
+#### Rarify point data so there is a single occurrence for each cell
 
 # Load raster file that should be used as a mask
 raster_mask <- raster("./Data/Predictors/dem_resampled.tif")
@@ -146,4 +148,6 @@ for (species in unique(bambu_species_sp$Species))
 
 bambu_species_cleared <- st_as_sf(bambu_species_empty)
 
+
+#Export as a geopackage
 st_write(bambu_species_cleared, "./Data/Shapefiles/Bambu_filtered261020_genus.gpkg")
