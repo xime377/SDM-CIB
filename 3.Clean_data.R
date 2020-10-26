@@ -15,7 +15,7 @@ setwd("~/Bamboo-SDM/") #Guanabana
 pacman::p_load(spocc, sf, mapview, lubridate, dplyr, readxl, raster, sf)
 
 ###Load info
-bambu_species_raw <- read_excel("BDD_10OCT2020.xlsx", sheet = 2)
+bambu_species_raw <- read_excel("BDD_26OCT2020.xlsx", sheet = 2)
 
 
 ##List of species to model
@@ -146,4 +146,4 @@ for (species in unique(bambu_species_sp$Species))
 
 bambu_species_cleared <- st_as_sf(bambu_species_empty)
 
-st_write(bambu_species_cleared, "./Bambu_filtered101020.gpkg")
+st_write(bambu_species_cleared, "./Data/Shapefiles/Bambu_filtered261020_genus.gpkg")
