@@ -121,7 +121,7 @@ names(bambu_species_df) %>%
                  radius = 4,
                  label=~as.character(Species),
                  #popup=~as.character(Species),
-                 popup= popupTable(bambu_species_df[[df]][2:3]),
+                 popup= popupTable(bambu_species_df[[df]][c(2,4)]),
                  group = df,
                  clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F),
                  labelOptions = labelOptions(noHide = F,
