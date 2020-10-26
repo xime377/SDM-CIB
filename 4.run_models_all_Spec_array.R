@@ -30,11 +30,11 @@ pacman::p_load(raster, sf, readr, fasterize, dplyr, usdm,
 processing_directory <- "~/Bamboo-SDM/" #"G:/My Drive/CIB/3. Resultados/Scripts/Bamboo-SDM"
 
 # Directory for biomod resulty
-biomod_dir <- paste0(processing_directory, "/Results/biomod")
+biomod_dir <- paste0(processing_directory, "Results/biomod")
 # Directory for csv file outputs
-csvs_folder <- paste0(processing_directory, "/Results/csv")
+csvs_folder <- paste0(processing_directory, "Results/csv")
 # Directory for job logs
-logs_folder <- paste0(processing_directory, "/Results/logs")
+logs_folder <- paste0(processing_directory, "Results/logs")
 # Create folders
 dir.create(processing_directory)
 dir.create(biomod_dir, recursive = TRUE)
@@ -69,7 +69,7 @@ bambu_rasters <- usdm::exclude(bambu_rasters_raw, bambu_vif)
 
 # Load species data
 bambu_data <- processing_directory %>% 
-  paste0("/Data/Shapefiles/Bambu_filtered101020.gpkg") %>%
+  paste0("/Data/Shapefiles/Bambu_filtered261020_genus.gpkg") %>%
   read_sf()
 
 # Load Peru data (used later to crop maps)
@@ -97,7 +97,7 @@ i <- commandArgs(trailingOnly=TRUE) %>%
 #i <- 1:length(processing_species)
 
 #species <- processing_species[i]
-species <- processing_species[70]
+species <- processing_species[3]
 
 cat(paste0("#############################\n","Modeling ", as.character(species), "\n", "#############################\n"), "\n")
 
@@ -164,10 +164,10 @@ model_out <- BIOMOD_Modeling(model_data, models = model_algo,
 eval_values <- model_out %>%
   get_evaluations() %>%
   as.data.frame() %>%
-  select(contains("Testing.data")) %>%
+  dplyr::select(contains("Testing.data")) %>%
   mutate(Var = row.names(.),
          sp_name = species) %>%
-  select(Var, everything())
+  dplyr::select(Var, everything())
 
 write.csv(eval_values, paste0(csvs_folder, "/Model_assessment_", str_replace(species, " ", "_"), ".csv"),
           row.names = FALSE)
@@ -177,7 +177,7 @@ var_imp_values <- model_out %>%
   as.data.frame() %>%
   mutate(Var = row.names(.), 
          sp_name = species) %>%
-  select(Var, everything())
+  dplyr::select(Var, everything())
 
 write.csv(var_imp_values, paste0(csvs_folder, "/EMout_varimp_", str_replace(species, " ", "_"), ".csv"),
           row.names = FALSE)
@@ -210,7 +210,7 @@ ensemble_model_out <- BIOMOD_EnsembleModeling(modeling.output = model_out,
 eval_values_ensemble <- ensemble_model_out %>%
   get_evaluations() %>%
   as.data.frame() %>%
-  select(contains("Testing.data")) %>%
+  dplyr::select(contains("Testing.data")) %>%
   transmute(Var = row.names(.),
          em_mean = .[[1]],
          em_wmean = .[[2]],
