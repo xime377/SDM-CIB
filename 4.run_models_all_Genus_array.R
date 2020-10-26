@@ -69,10 +69,10 @@ bambu_rasters <- usdm::exclude(bambu_rasters_raw, bambu_vif)
 
 # Load species data
 bambu_data <- processing_directory %>% 
-  paste0("/Data/Shapefiles/Bambu_filtered181020_genus.gpkg") %>% #bambu_with_gbif_samer_genusG.gpkg
+  paste0("/Data/Shapefiles/Bambu_filtered261020_genus.gpkg") %>% #bambu_with_gbif_samer_genusG.gpkg
   read_sf()
 
-names(bambu_data)<- c("fid", "ID","Species",  "Source", "grid", "Genus", "layer", "geom")
+#names(bambu_data)<- c(ID","Species", "Genus", "Ref", "Source", "grid", "geom")
 
 # Load Peru data (used later to crop maps)
 peru_boundary <- processing_directory %>% 
@@ -99,7 +99,7 @@ i <- commandArgs(trailingOnly=TRUE) %>%
 i <- 1:length(processing_genus)
 
 #genus <- processing_genus[i]
-genus <- processing_genus[10]
+genus <- processing_genus[7]
 
 cat(paste0("#############################\n","Modeling ", as.character(genus), "\n", "#############################\n"), "\n")
 
