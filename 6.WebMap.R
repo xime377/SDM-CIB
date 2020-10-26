@@ -68,7 +68,7 @@ all_genus[all_genus<=100] <- NA
 
 
 ###LOAD POINTS
-P_bamboo<-st_read("./Scripts/Bamboo-SDM/Data/Shapefiles/Bambu_filtered181020_genus.gpkg")
+P_bamboo<-st_read("./Scripts/Bamboo-SDM/Data/Shapefiles/Bambu_filtered261020_genus.gpkg")
 #P_bamboo<-st_read("./Data/Shapefiles/Bambu_filtered181020_genus.shp")
 
 ###LOAD MEMBRETE
@@ -89,7 +89,7 @@ bambu_species <- P_bamboo %>%
   st_set_geometry(NULL)
 
 # Rescale values to 0-1
-my_map <- all_sps[[1]] / 1000 
+my_map <- all_sps / 1000 
 # Aggregate map for easier loading 
 my_map_agg <- aggregate(my_map, fact = 10)
 
@@ -97,7 +97,8 @@ my_map_agg <- aggregate(my_map, fact = 10)
 bambu_species_df <- split(bambu_species, bambu_species$Species)
 basemap <- leaflet() %>% addTiles()
 
-# Create df so it can be visualized per species
+
+### Create df so it can be visualized per species
 
 # In case that you want just to show points instead of 
 # point clusters, remove the clusterOptions line
@@ -109,7 +110,8 @@ names(bambu_species_df) %>%
                  weight = 2,
                  radius = 4,
                  label=~as.character(Species),
-                 popup=~as.character(Species),
+                 #popup=~as.character(Species),
+                 popup= popupTable(bambu_species_df[[df]][2:3]),
                  group = df,
                  clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F),
                  labelOptions = labelOptions(noHide = F,
@@ -118,7 +120,7 @@ names(bambu_species_df) %>%
 
 # Select species occurences on map (default Guadua sp.)
 basemap %>% 
-  addProviderTiles("OpenStreetMap") %>% 
+  addProviderTiles("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap") %>% 
   addRasterImage(my_map_agg,
                  # colors = pal,
                  # group = "Raster",
@@ -142,7 +144,7 @@ basemap %>%
 #################
 # Map all points and raster
 leaflet::leaflet(data = bambu_species) %>% 
-  addProviderTiles("OpenStreetMap") %>% 
+  addProviderTiles("Stamen.Terrain") %>% 
   addCircleMarkers(
     radius = 10, # size of the dots
     fillOpacity = .7, # alpha of the dots
@@ -150,7 +152,8 @@ leaflet::leaflet(data = bambu_species) %>%
     # popup = ~htmlEscape(name),
     group = "Points",
     clusterOptions = markerClusterOptions(),
-    popup = ~htmltools::htmlEscape(Species)) %>% 
+    #popup = ~htmltools::htmlEscape(Species)) %>% 
+    popup= popupTable(bambu_species[2:4]))%>% 
   addRasterImage(my_map_agg, 
                  # colors = pal, 
                  group = "Raster",
