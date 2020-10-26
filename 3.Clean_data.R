@@ -97,7 +97,8 @@ bambu_species_sf <- bambu_species_raw %>%
   filter(complete.cases(Latitud)) %>% # Get data with coordinates
   filter(Latin %in% bambu_species_to_model) %>% # Get only species of interest
   transmute(ID = ID,
-            Species = Latin, # Subset and rename columns 
+            Species = Latin, # Subset and rename columns
+            Genus = Genus,
             Latitude = Latitud,
             Longitude = Longitud,
             Ref = Fuente,
