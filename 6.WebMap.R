@@ -47,14 +47,14 @@ names(all_genus)
 ###If loading only some rasters  
 #Aulonemia<- raster("./Output/Mapa_SDM_prel_Ago17/Bambu_1maps/Aulonemia_hirtula.tif")
 #Chusquea<- read_stars("./Output/Mapa_SDM_prel_Ago17/Bambu_1maps/Chusquea_sp.tif")
-#Guadua<- raster("./Output/Mapa_SDM_prel_Nov19/Guadua_sp.tif")
+#Chusquea<- raster("./Output/Mapa_SDM_prel_Nov19/Chusquea_sp.tif")
 
 
 ###Data exploration
 summary(all_sps)
 summary(all_sps[[40]])
 
-#summary(Guadua)
+#summary(Chusquea)
 #summary(Aulonemia)
 
 ###Select the probability values higher than 10%
@@ -62,9 +62,9 @@ all_sps[all_sps<=100] <- NA # Select only values higher than 100 (10%)
 all_genus[all_genus<=100] <- NA 
 
 #Aulonemia[Aulonemia<=100] <- NA 
-#Guadua<- Guadua[Guadua<=100] <- NA 
+#Chusquea<- Chusquea[Chusquea<=100] <- NA 
 #Stack layers
-#all_S<-stack(Aulonemia, Guadua)
+#all_S<-stack(Aulonemia, Chusquea)
 
 
 ###LOAD POINTS
@@ -80,7 +80,7 @@ membrete <- paste0(predictions_dir, "/membrete.png")
 mapView(P_bamboo, legend=T, #add points
         map.types=c("Stamen.Terrain", "CartoDB.Positron", "Esri.WorldImagery", "OpenStreetMap", "OpenTopoMap")) #add basemaps
 
-
+#Arrange df
 bambu_species <- P_bamboo %>% 
   mutate(
     longitude = st_coordinates(.)[, 1],
@@ -88,10 +88,17 @@ bambu_species <- P_bamboo %>%
   ) %>% 
   st_set_geometry(NULL)
 
-# Rescale values to 0-1
-my_map <- all_sps[[1]] / 1000 
+# Rescale values to 0-1 of the raster
+my_map <- all_sps / 1000 
 # Aggregate map for easier loading 
 my_map_agg <- aggregate(my_map, fact = 10)
+
+#Select raster to be displayed
+Chusquea_map_agg <- my_map_agg[[17]]
+
+#Assign the colors to be displayed
+pal = colorNumeric(c("#FFFFCC", "#fc8d59", "#e31a1c"), values(my_map_agg[[17]]), #lighter -> lower values
+                   na.color = "transparent") 
 
 # 
 bambu_species_df <- split(bambu_species, bambu_species$Species)
@@ -125,9 +132,9 @@ names(bambu_species_df) %>%
 # Select species occurences on map (By default G. angustifolia)
 basemap %>% 
   #addProviderTiles("OpenStreetMap") %>% 
-  addRasterImage(my_map_agg,
-                 # colors = pal,
-                 group = "Raster",
+  addRasterImage(Chusquea_map_agg,
+                 colors = pal,
+                 group = "Pred. Chusquea scandens",
                  opacity = 0.8) %>%
   leaflet.extras::addResetMapButton()  %>% 
   addScaleBar(position = "bottomright") %>% 
@@ -137,11 +144,16 @@ basemap %>%
            offset.y = 5,
            width = 380,
            height = 160) %>%
+  addLegend(pal = pal,
+            values  = values(Chusquea_map_agg), #Chusquea_map_agg@data@values,
+            position = "topleft",
+            title = "Probabilidad de Ocurrencia de la especie",
+            labFormat = labelFormat(digits=3)) %>%
   addLayersControl(
     baseGroups = c("OpenStreetMap", "World Imagery", "Terrain"),
-    overlayGroups = c("Raster",names(bambu_species_df)),
+    overlayGroups = c("Pred. Chusquea scandens",names(bambu_species_df)),
     options = layersControlOptions(collapsed = FALSE)) %>% 
-  hideGroup(stringr::str_remove(names(bambu_species_df), "Guadua angustifolia"))
+  hideGroup(stringr::str_remove(names(bambu_species_df), "Chusquea scandens"))
 
 
 
@@ -158,11 +170,11 @@ leaflet::leaflet(data = bambu_species) %>%
     clusterOptions = markerClusterOptions(),
     #popup = ~htmltools::htmlEscape(Species)) %>% 
     popup= popupTable(bambu_species[2:4]))%>% 
-  addRasterImage(my_map_agg, 
+  addRasterImage(Chusquea_map_agg, 
                  # colors = pal, 
                  group = "Raster",
                  opacity = 0.8) %>%
-  addRasterImage(my_map_agg, 
+  addRasterImage(Chusquea_map_agg, 
                  # colors = pal, 
                  group = "Raster",
                  opacity = 0.8) %>%
