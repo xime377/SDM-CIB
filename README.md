@@ -3,6 +3,8 @@
 
 Scripts for mapping the potential distribution of Peruvian bamboo species. This workflow was designed to model bamboo species distribution in Peru. They were developed within the CIB project. In case of usage, **please do not forget to cite this repository.** 
 
+http://www.iiap.gob.pe/web/proyecto_bambu.html
+
 Steps:
 ------
 
